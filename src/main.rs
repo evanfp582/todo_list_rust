@@ -1,31 +1,26 @@
-use std::path::Path;
-use std::fs::File;
+mod task;
+mod task_backend;
 
-use serde::{Serialize, Deserialize};
-use todo_list::Task;
+use task_backend::crud::{refresh_json, read_json_db};
 
-#[derive(Serialize, Deserialize, Debug)]
-struct Point {
-    x: i32,
-    y: i32,
-}
+use crate::task::Task;
 
 fn main() {
-    // let point = Point { x: 1, y: 2 };
 
-    // let serialized = serde_json::to_string(&point).unwrap();
-    // println!("serialized = {}", serialized);
+    let mut tasks:Vec<Task> = read_json_db("database.json");
+    println!("{}", serde_json::to_string(&tasks).expect("JSON to String failed"));
 
-    // let deserialized: Point = serde_json::from_str(&serialized).unwrap();
-    // println!("deserialized = {:?}", deserialized);
+    let new_task = Task::new("Meowed".to_owned(), false);
 
-    let json_file_path = Path::new("database.json");
-    let file = File::open(json_file_path).expect("file not found");
+    tasks.push(new_task);
 
+    println!("{}", serde_json::to_string(&tasks).expect("JSON to String failed"));
 
-    let tasks:Vec<Task> = serde_json::from_reader(file).expect("error while reading");
-    for task in tasks.iter() {
-        println!("{}", task);
-    }
+    let _ = refresh_json("database.json", &tasks);
+
+    // for task in tasks.iter() {
+    //     println!("{}", task);
+    //     let _ = add_task_to_json("database.json", task);
+    // }
 
 }
